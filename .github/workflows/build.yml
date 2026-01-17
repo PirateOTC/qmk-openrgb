@@ -1,28 +1,26 @@
-name: Build Drop CTRL Firmware
+name: Build Drop CTRL OpenRGB
 on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    # We use the official QMK container to avoid environment errors
+    container: ghcr.io/qmk/qmk_cli
     steps:
-      - name: Checkout Repo
+      - name: Checkout QMK (Version 0.26.11)
         uses: actions/checkout@v4
         with:
           repository: qmk/qmk_firmware
           ref: 0.26.11
           submodules: recursive
 
-      - name: Install Dependencies
+      - name: Build Firmware
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi python3-pip
-          python3 -m pip install qmk
-
-      - name: QMK Compile
-        run: |
-          # The standard way to initialize and build
-          python3 -m qmk.cli setup -y
-          python3 -m qmk.cli compile -kb massdrop/ctrl -km openrgb
+          # Disable git safety checks which often break container builds
+          git config --global --add safe.directory /__w/your-repo-name/your-repo-name
+          
+          # The official way to compile for the V1 CTRL
+          qmk compile -kb massdrop/ctrl -km openrgb
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
