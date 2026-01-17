@@ -5,27 +5,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Your Repo
-        uses: actions/checkout@v4
-        with:
-          path: my-config
-
-      - name: Checkout QMK (Version 0.26.11)
+      - name: Checkout Repo
         uses: actions/checkout@v4
         with:
           repository: qmk/qmk_firmware
           ref: 0.26.11
           submodules: recursive
-          path: qmk_firmware
 
       - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi python3-pip
-          sudo python3 -m pip install qmk
+          python3 -m pip install qmk
 
-      - name: Build Firmware
+      - name: QMK Compile
         run: |
-          cd qmk_firmware
-          # This is the "old school" way to build, which bypasses CLI path errors
-          make massdrop/ctrl:openrgb
+          # The standard way to initialize and build
+          python3 -m qmk.cli setup -y
+          python3 -m qmk.cli compile -kb massdrop/ctrl -km openrgb
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Drop-CTRL-OpenRGB
+          path: .build/*.bin
