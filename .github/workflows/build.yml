@@ -7,7 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ghcr.io/qmk/qmk_cli:0.26.11
 
     steps:
       - name: Checkout repository
@@ -15,17 +14,31 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Allow git in container
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system dependencies
         run: |
-          git config --global --add safe.directory '*'
+          sudo apt update
+          sudo apt install -y \
+            gcc-arm-none-eabi \
+            avr-libc \
+            avrdude \
+            dfu-util \
+            dfu-programmer \
+            clang \
+            python3-dev
 
       - name: Install Python dependencies
         run: |
-          python3 -m pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Build firmware
         run: |
-          qmk compile -kb massdrop/ctrl -km openrgb
+          python -m qmk.cli compile -kb massdrop/ctrl -km openrgb
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
