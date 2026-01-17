@@ -7,7 +7,7 @@ jobs:
     container: qmkfm/qmk_cli
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -17,7 +17,11 @@ jobs:
           qmk compile -kb massdrop/ctrl -km default
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Drop-CTRL-Firmware
-          path: ./*.bin
+          # This looks for any .bin file in the current directory or .build folder
+          path: |
+            *.bin
+            .build/*.bin
+          if-no-files-found: error
