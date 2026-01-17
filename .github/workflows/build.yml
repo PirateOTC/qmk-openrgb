@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ghcr.io/qmk/qmk_cli
+    container: ghcr.io/qmk/qmk_cli:latest-3.11
 
     steps:
       - name: Checkout repository
