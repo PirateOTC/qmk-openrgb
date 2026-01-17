@@ -4,7 +4,6 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
-    # We use the official QMK container to avoid environment errors
     container: ghcr.io/qmk/qmk_cli
     steps:
       - name: Checkout QMK (Version 0.26.11)
@@ -13,17 +12,22 @@ jobs:
           repository: qmk/qmk_firmware
           ref: 0.26.11
           submodules: recursive
+          path: qmk_root
 
       - name: Build Firmware
         run: |
-          # Disable git safety checks which often break container builds
-          git config --global --add safe.directory /__w/your-repo-name/your-repo-name
+          # 1. Tell QMK exactly where the source code is
+          export QMK_HOME=$(pwd)/qmk_root
           
-          # The official way to compile for the V1 CTRL
-          qmk compile -kb massdrop/ctrl -km openrgb
-
+          # 2. Fix git permissions for the container
+          git config --global --add safe.directory $(pwd)/qmk_root
+          
+          # 3. Run the compile using the absolute path to the local QMK module
+          # This avoids using the global CLI which is causing the validation error
+          python3 -m qmk.cli compile -kb massdrop/ctrl -km openrgb
+          
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Drop-CTRL-OpenRGB
-          path: .build/*.bin
+          path: qmk_root/.build/*.bin
