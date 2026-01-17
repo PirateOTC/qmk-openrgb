@@ -4,24 +4,33 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
-    # Using a specific older version to avoid Python 3.14 subparser errors
-    container: ghcr.io/qmk/qmk_cli:0.2.2
     steps:
-      - name: Checkout
+      - name: Checkout QMK (Version 0.26.11)
         uses: actions/checkout@v4
         with:
+          repository: qmk/qmk_firmware
+          ref: 0.26.11
           submodules: recursive
+
+      - name: Copy Your Keymap
+        run: |
+          # This copies the keymap from your repo into the QMK folder
+          # Replace 'default' if you named your keymap folder something else
+          mkdir -p keyboards/massdrop/ctrl/keymaps/mine
+          cp -R ${{ github.workspace }}/* keyboards/massdrop/ctrl/keymaps/mine/
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
+          python3 -m pip install qmk
 
       - name: Build Firmware
         run: |
-          # We skip 'qmk setup' because the container is already ready
-          qmk compile -kb massdrop/ctrl -km default
+          qmk compile -kb massdrop/ctrl -km mine
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Drop-CTRL-Firmware
-          path: |
-            *.bin
-            .build/*.bin
-          if-no-files-found: error
+          path: .build/*.bin
