@@ -27,19 +27,10 @@ jobs:
 
       - name: Setup and Build
         run: |
-          # Add the common pip install locations to PATH just in case
-          export PATH=$PATH:/home/runner/.local/bin
-          
+          sudo python3 -m pip install qmk
           cd qmk_firmware
-          mkdir -p keyboards/massdrop/ctrl/keymaps/mine
-          
-          # Copy your files
-          find ../my-config -name "keymap.c" -exec cp {} keyboards/massdrop/ctrl/keymaps/mine/ \;
-          find ../my-config -name "config.h" -exec cp {} keyboards/massdrop/ctrl/keymaps/mine/ \;
-          find ../my-config -name "rules.mk" -exec cp {} keyboards/massdrop/ctrl/keymaps/mine/ \;
-          
-          # Use the 'qmk' command directly instead of 'python3 -m'
-          qmk compile -kb massdrop/ctrl -km mine
+          # No need to copy files if using the built-in 'openrgb' keymap
+          qmk compile -kb massdrop/ctrl -km openrgb
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
