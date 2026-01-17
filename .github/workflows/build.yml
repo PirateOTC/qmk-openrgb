@@ -22,22 +22,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi python3-pip
-          # Install QMK globally so the PATH is easier to find
           sudo python3 -m pip install qmk
 
-      - name: Setup and Build
+      - name: Build Firmware
         run: |
-          sudo python3 -m pip install qmk
           cd qmk_firmware
-          
-          # Initialize QMK to make sure it recognizes the keyboard list
-          qmk setup -y
-          
-          # Compile the specific massdrop/ctrl keyboard with the openrgb keymap
-          qmk compile -kb massdrop/ctrl -km openrgb
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Drop-CTRL-Firmware
-          path: qmk_firmware/.build/*.bin
+          # This is the "old school" way to build, which bypasses CLI path errors
+          make massdrop/ctrl:openrgb
