@@ -34,15 +34,3 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -e .
-
-      - name: Build firmware
-        run: |
-          python -m qmk.cli compile -kb massdrop/ctrl -km openrgb
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Drop-CTRL-OpenRGB
-          path: .build/
