@@ -1,39 +1,10 @@
-name: Build Drop CTRL Firmware
-on: [push, workflow_dispatch]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Your Repo
-        uses: actions/checkout@v4
-        with:
-          path: my-config
-
-      - name: Checkout QMK (Version 0.26.11)
-        uses: actions/checkout@v4
-        with:
-          repository: qmk/qmk_firmware
-          ref: 0.26.11
-          submodules: recursive
-          path: qmk_firmware
-
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi python3-pip
-          # Install QMK globally so the PATH is easier to find
-          sudo python3 -m pip install qmk
-
-      - name: Setup and Build
+- name: Setup and Build
         run: |
           sudo python3 -m pip install qmk
           cd qmk_firmware
-          # No need to copy files if using the built-in 'openrgb' keymap
+          
+          # Initialize QMK to make sure it recognizes the keyboard list
+          qmk setup -y
+          
+          # Compile the specific massdrop/ctrl keyboard with the openrgb keymap
           qmk compile -kb massdrop/ctrl -km openrgb
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Drop-CTRL-Firmware
-          path: qmk_firmware/.build/*.bin
