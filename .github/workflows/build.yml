@@ -21,23 +21,25 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi python3-pip python3-setuptools
-          python3 -m pip install --upgrade pip
-          python3 -m pip install qmk
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi python3-pip
+          # Install QMK globally so the PATH is easier to find
+          sudo python3 -m pip install qmk
 
       - name: Setup and Build
         run: |
+          # Add the common pip install locations to PATH just in case
+          export PATH=$PATH:/home/runner/.local/bin
+          
           cd qmk_firmware
           mkdir -p keyboards/massdrop/ctrl/keymaps/mine
           
-          # Search for keymap.c in your repo and copy it to the build folder
+          # Copy your files
           find ../my-config -name "keymap.c" -exec cp {} keyboards/massdrop/ctrl/keymaps/mine/ \;
           find ../my-config -name "config.h" -exec cp {} keyboards/massdrop/ctrl/keymaps/mine/ \;
           find ../my-config -name "rules.mk" -exec cp {} keyboards/massdrop/ctrl/keymaps/mine/ \;
           
-          # Force python to see the installed qmk module
-          export PYTHONPATH=$PYTHONPATH:/home/runner/.local/lib/python3.10/site-packages
-          python3 -m qmk.cli compile -kb massdrop/ctrl -km mine
+          # Use the 'qmk' command directly instead of 'python3 -m'
+          qmk compile -kb massdrop/ctrl -km mine
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
