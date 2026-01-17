@@ -1,6 +1,8 @@
 name: Build Drop CTRL OpenRGB
 
-on: [push, workflow_dispatch]
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -8,19 +10,20 @@ jobs:
     container: ghcr.io/qmk/qmk_cli
 
     steps:
-      - name: Checkout QMK
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          repository: qmk/qmk_firmware
-          ref: 0.26.11
           submodules: recursive
 
-      - name: Build Firmware
+      - name: Allow git in container
         run: |
           git config --global --add safe.directory '*'
+
+      - name: Build firmware
+        run: |
           qmk compile -kb massdrop/ctrl -km openrgb
 
-      - name: Upload Artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: Drop-CTRL-OpenRGB
