@@ -4,7 +4,8 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: qmkfm/qmk_cli
+    # Using a specific older version to avoid Python 3.14 subparser errors
+    container: ghcr.io/qmk/qmk_cli:0.2.2
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -13,14 +14,13 @@ jobs:
 
       - name: Build Firmware
         run: |
-          qmk setup -y
+          # We skip 'qmk setup' because the container is already ready
           qmk compile -kb massdrop/ctrl -km default
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Drop-CTRL-Firmware
-          # This looks for any .bin file in the current directory or .build folder
           path: |
             *.bin
             .build/*.bin
