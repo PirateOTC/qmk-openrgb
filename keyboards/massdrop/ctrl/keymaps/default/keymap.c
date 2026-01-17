@@ -1,5 +1,5 @@
 #include QMK_KEYBOARD_H
-
+ 
 enum ctrl_keycodes {
     U_T_AUTO = SAFE_RANGE, //USB Extra Port Toggle Auto Detect / Always Active
     U_T_AGCR,              //USB Toggle Automatic GCR control
