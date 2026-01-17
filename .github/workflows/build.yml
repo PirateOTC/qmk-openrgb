@@ -31,16 +31,18 @@ jobs:
             clang \
             python3-dev
 
-      - name: Install QMK Python requirements
+      - name: Install QMK CLI
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
+          python -m pip install qmk
+
+      - name: Set QMK home to this repo
+        run: |
+          qmk setup -y --home .
 
       - name: Build firmware
         run: |
-          python -m qmk.cli compile \
-            -kb massdrop/ctrl \
-            -km openrgb
+          qmk compile -kb massdrop/ctrl -km openrgb
 
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
